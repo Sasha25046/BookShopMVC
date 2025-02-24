@@ -1,0 +1,16 @@
+﻿@model BookShopDomain.Model.Status
+
+<h2>Змінити статус замовлення</h2>
+
+<form asp-action="Edit" method="post">
+    <input type="hidden" asp-for="Id" />
+
+    <div class="form-group">
+        <label asp-for="Name" class="control-label">Назва</label>
+        <input asp-for="Name" class="form-control" />
+        <span asp-validation-for="Name" class="text-danger"></span>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Зберегти</button>
+    <a asp-controller="Status" asp-action="Index" class="btn btn-secondary">Скасувати</a>
+</form>

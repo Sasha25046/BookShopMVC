@@ -1,0 +1,28 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.12.35707.178 d17.12
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BookShopDomain", "BookShopDomain\BookShopDomain.csproj", "{C64A8B6A-22B8-41B2-B208-97718634B923}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BookShopInfrastructure", "BookShopInfrastructure\BookShopInfrastructure.csproj", "{BA68224D-E202-4D7A-8C3E-0C52780E1993}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{C64A8B6A-22B8-41B2-B208-97718634B923}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C64A8B6A-22B8-41B2-B208-97718634B923}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C64A8B6A-22B8-41B2-B208-97718634B923}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C64A8B6A-22B8-41B2-B208-97718634B923}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BA68224D-E202-4D7A-8C3E-0C52780E1993}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BA68224D-E202-4D7A-8C3E-0C52780E1993}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BA68224D-E202-4D7A-8C3E-0C52780E1993}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BA68224D-E202-4D7A-8C3E-0C52780E1993}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

@@ -1,0 +1,52 @@
+﻿@model IEnumerable<BookShopDomain.Model.Seller>
+
+@{
+    ViewData["Title"] = "Sellers";
+}
+
+<h1>Продавці</h1>
+
+<p>
+    <a asp-action="Create" class="btn btn-success mb-3">Додати</a>
+</p>
+
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger">
+        @TempData["ErrorMessage"]
+    </div>
+}
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success">
+        @TempData["SuccessMessage"]
+    </div>
+}
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Name)
+            </th>
+            <th>Дії</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Name)
+                </td>
+                <td>
+                    <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-warning btn-sm">Редагувати</a>
+                    <form asp-action="Delete" asp-route-id="@item.Id" method="post" class="d-inline delete-form">
+                        <button type="submit" class="btn btn-danger btn-sm">Видалити</button>
+                    </form>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

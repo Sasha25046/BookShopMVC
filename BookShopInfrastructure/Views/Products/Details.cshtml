@@ -1,0 +1,82 @@
+﻿@model BookShopDomain.Model.Product
+
+<h2>Деталі продукту</h2>
+
+<div>
+    <h4>@Model.Name</h4>
+    <p>Опис: @Model.Description</p>
+    <p>Рік випуску: @Model.Year</p>
+    <p>Ціна: @Model.Price</p>
+    <p>Продавець: @Model.Seller.Name</p>
+    <p>Статус: @Model.BookStatus.Name</p>
+</div>
+
+<h3>Жанри:</h3>
+<ul>
+    @foreach (var genre in Model.Genres)
+    {
+        <li>
+            @genre.Name
+            <form asp-action="RemoveGenreFromProduct" asp-controller="Products" method="post" style="display:inline;">
+                <input type="hidden" name="productId" value="@Model.Id" />
+                <input type="hidden" name="genreId" value="@genre.Id" />
+                <button type="submit" class="btn btn-danger btn-sm"
+                        onclick="return confirm('Ви впевнені, що хочете видалити цей жанр?');">
+                    Видалити
+                </button>
+            </form>
+        </li>
+    }
+</ul>
+
+<h4>Додати жанр</h4>
+<form asp-action="AddGenreToProduct" asp-controller="Products" method="post">
+    <input type="hidden" name="id" value="@Model.Id" />
+    <div class="form-group">
+        @foreach (var genre in (SelectList)ViewData["Genres"])
+        {
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" name="selectedGenres" value="@genre.Value" id="genre_@genre.Value" />
+                <label class="form-check-label" for="genre_@genre.Value">@genre.Text</label>
+            </div>
+        }
+    </div>
+    <button type="submit" class="btn btn-success">Додати жанри</button>
+</form>
+
+
+<h3>Автори:</h3>
+<ul>
+    @foreach (var author in Model.Authors)
+    {
+        <li>
+            @author.Name
+            <form asp-action="RemoveAuthorFromProduct" asp-controller="Products" method="post" style="display:inline;">
+                <input type="hidden" name="productId" value="@Model.Id" />
+                <input type="hidden" name="authorId" value="@author.Id" />
+                <button type="submit" class="btn btn-danger btn-sm"
+                        onclick="return confirm('Ви впевнені, що хочете видалити цього автора?');">
+                    Видалити
+                </button>
+            </form>
+        </li>
+    }
+</ul>
+
+
+<h4>Додати автора</h4>
+<form asp-action="AddAuthorToProduct" asp-controller="Products" method="post">
+    <input type="hidden" name="id" value="@Model.Id" />
+    <div class="form-group">
+        @foreach (var author in (SelectList)ViewData["Authors"])
+        {
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" name="selectedAuthors" value="@author.Value" id="author_@author.Value" />
+                <label class="form-check-label" for="author_@author.Value">@author.Text</label>
+            </div>
+        }
+    </div>
+    <button type="submit" class="btn btn-success">Додати авторів</button>
+</form>
+
+<a href="@Url.Action("Index", "Products")" class="btn btn-primary">Повернутись до списку продуктів</a>

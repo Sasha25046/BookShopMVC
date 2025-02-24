@@ -1,0 +1,54 @@
+﻿@model IEnumerable<BookShopDomain.Model.OrderItem>
+
+<h2>Товари у замовленні</h2>
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success">
+        @TempData["SuccessMessage"]
+    </div>
+}
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Назва товару</th>
+            <th>Кількість</th>
+            <th>Дії</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.Product.Name</td>
+                <td>@item.Quantity</td>
+                <td>
+                    <a asp-controller="Products"
+                       asp-action="Details"
+                       asp-route-id="@item.ProductId"
+                       asp-route-orderId="@ViewBag.OrderId"
+                       class="btn btn-info">
+                        Деталі товару
+                    </a>
+                    <a asp-controller="OrderItems" asp-action="Edit" asp-route-id="@item.Id" class="btn btn-warning">
+                        Редагувати
+                    </a>
+                    <form asp-action="Delete" asp-route-id="@item.Id" method="post" class="d-inline delete-form">
+                        <button type="submit" class="btn btn-danger">
+                            Видалити
+                        </button>
+                    </form>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<a asp-controller="OrderItems" asp-action="Create" asp-route-orderId="@ViewBag.OrderId" class="btn btn-primary">
+    Додати товар
+</a>
+
+<a asp-controller="Orders" asp-action="Index" class="btn btn-secondary">
+    Назад до замовлень
+</a>

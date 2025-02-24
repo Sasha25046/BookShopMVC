@@ -1,0 +1,31 @@
+﻿@model BookShopDomain.Model.Buyer
+
+@{
+    ViewData["Title"] = "Деталі покупця";
+}
+
+<h1>Деталі покупця</h1>
+<div>
+    <h4>@Model.Name</h4>
+    <p>Адреса: @Model.Address</p>
+    <hr />
+    <h5>Замовлення покупця:</h5>
+    @if (Model.Orders.Any())
+    {
+        <ul>
+            @foreach (var order in Model.Orders)
+            {
+                <li>
+                    <strong>Замовлення №@order.Id</strong>
+                    <a asp-action="Details" asp-controller="Orders" asp-route-id="@order.Id" class="btn btn-info btn-sm">Деталі замовлення</a>
+                </li>
+            }
+        </ul>
+    }
+    else
+    {
+        <p>Цей покупець ще не має замовлень.</p>
+    }
+</div>
+<a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning">Редагувати</a>
+<a asp-action="Index" class="btn btn-secondary">Назад до списку покупців</a>

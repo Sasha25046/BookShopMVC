@@ -1,0 +1,14 @@
+﻿@model BookShopDomain.Model.OrderItem
+
+<h2>Видалити товар з замовлення?</h2>
+
+<div>
+    <p><strong>Товар:</strong> @Model.Product.Name</p>
+    <p><strong>Кількість:</strong> @Model.Quantity</p>
+</div>
+
+<form asp-action="Delete">
+    <input type="hidden" asp-for="Id" />
+    <button type="submit" class="btn btn-danger">🗑️ Видалити</button>
+    <a asp-controller="OrderItems" asp-action="Index" asp-route-orderId="@Model.OrderId" class="btn btn-secondary">⬅️ Скасувати</a>
+</form>

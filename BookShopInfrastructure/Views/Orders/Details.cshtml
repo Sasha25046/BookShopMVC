@@ -1,0 +1,7 @@
+﻿<h2>Деталі замовлення</h2>
+
+<p>Покупець: <a asp-action="Details" asp-controller="Buyers" asp-route-id="@Model.BuyerId">@Model.Buyer.Name</a></p>
+<p>Дата замовлення: @Model.OrderDate.ToShortDateString()</p>
+
+<a asp-action="Index" asp-controller="Orders" class="btn btn-secondary">Повернутися до замовлень</a>
+<a asp-action="Index" asp-controller="OrderItems" asp-route-orderId="@Model.Id" class="btn btn-primary">Позиції замовлення</a>

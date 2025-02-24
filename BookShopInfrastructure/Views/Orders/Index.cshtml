@@ -1,0 +1,49 @@
+﻿@model IEnumerable<BookShopDomain.Model.Order>
+
+<h2>Список замовлень</h2>
+
+<div>
+    <a asp-controller="Orders" asp-action="Create" class="btn btn-primary">Створити замовлення</a>
+</div>
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success">
+        @TempData["SuccessMessage"]
+    </div>
+}
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Покупець</th>
+            <th>Статус</th>
+            <th>Дата замовлення</th>
+            <th>Дата доставки</th>
+            <th>Деталі</th>
+            <th>Дії</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var order in Model)
+        {
+            <tr>
+                <td>@order.Buyer.Name</td>
+                <td>@order.Status.Name</td>
+                <td>@order.OrderDate?.ToString("yyyy-MM-dd")</td>
+                <td>@order.DeliveryDate?.ToString("yyyy-MM-dd")</td>
+                <td>
+                    <a asp-controller="Orders" asp-action="Details" asp-route-id="@order.Id">
+                        Переглянути товари
+                    </a>
+                </td>
+                <td>
+                    <a asp-controller="Orders" asp-action="Edit" asp-route-id="@order.Id" class="btn btn-warning btn-sm">Редагувати</a>
+                    <form asp-action="Delete" asp-route-id="@order.Id" method="post" class="d-inline delete-form">
+                        <button type="submit" class="btn btn-danger btn-sm">Видалити</button>
+                    </form>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

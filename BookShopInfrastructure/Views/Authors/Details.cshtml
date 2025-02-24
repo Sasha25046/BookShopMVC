@@ -1,0 +1,30 @@
+﻿@model BookShopDomain.Model.Author
+
+@{
+    ViewData["Title"] = "Деталі автора";
+}
+
+<h1>Деталі автора</h1>
+<div>
+    <h4>@Model.Name</h4>
+    <hr />
+    <h5>Продукти автора:</h5>
+    @if (Model.Products.Any())
+    {
+        <ul>
+            @foreach (var product in Model.Products)
+            {
+                <li>
+                    @product.Name
+                    <a asp-action="Details" asp-controller="Products" asp-route-id="@product.Id" class="btn btn-info btn-sm">Деталі книги</a>
+                </li>
+            }
+        </ul>
+    }
+    else
+    {
+        <p>Цей автор наразі не має доданих книг.</p>
+    }
+</div>
+<a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning">Редагувати</a>
+<a asp-action="Index" class="btn btn-secondary">Назад до списку</a>

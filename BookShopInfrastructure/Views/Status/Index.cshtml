@@ -1,0 +1,32 @@
+﻿@model IEnumerable<BookShopDomain.Model.Status>
+
+<h2>Статуси замовлень</h2>
+
+<p>
+    <a asp-controller="Status" asp-action="Create" class="btn btn-primary">Додати</a>
+</p>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Назва</th>
+            <th>Дії</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.Name</td>
+                <td>
+                    <a asp-controller="Status"
+                       asp-action="Edit"
+                       asp-route-id="@item.Id"
+                       class="btn btn-warning">
+                        Змінити
+                    </a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

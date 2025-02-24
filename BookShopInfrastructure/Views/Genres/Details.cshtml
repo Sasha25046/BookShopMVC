@@ -1,0 +1,25 @@
+﻿@model BookShopDomain.Model.Genre
+
+<h2>Деталі жанру: @Model.Name</h2>
+
+<h5>Книги цього жанру:</h5>
+
+@if (Model.Products.Any())
+{
+    <ul>
+        @foreach (var product in Model.Products)
+        {
+            <li>
+                @product.Name
+                <a asp-action="Details" asp-controller="Products" asp-route-id="@product.Id" class="btn btn-info btn-sm">Деталі книги</a>
+            </li>
+        }
+    </ul>
+}
+else
+{
+    <p>Цей жанр наразі не має жодної книги.</p>
+}
+
+<a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning">Редагувати</a>
+<a asp-action="Index" class="btn btn-secondary">Назад до списку жанрів</a>

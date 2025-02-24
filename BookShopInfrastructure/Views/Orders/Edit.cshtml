@@ -1,0 +1,45 @@
+﻿@model BookShopDomain.Model.Order
+
+@{
+    ViewData["Title"] = "Редагувати";
+}
+
+<h1>Редагувати замовлення</h1>
+
+<hr />
+<div class="row">
+    <div class="col-md-6">
+        <form asp-action="Edit">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+                <label asp-for="StatusId" class="control-label">Статус замовлення</label>
+                <select asp-for="StatusId" class="form-control" asp-items="ViewBag.StatusId"></select>
+                <span asp-validation-for="StatusId" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="BuyerId" class="control-label">Покупець</label>
+                <select asp-for="BuyerId" class="form-control" asp-items="ViewBag.BuyerId"></select>
+                <span asp-validation-for="BuyerId" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="OrderDate" class="control-label">Дата замовлення</label>
+                <input asp-for="OrderDate" class="form-control" />
+                <span asp-validation-for="OrderDate" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="DeliveryDate" class="control-label">Дата доставки</label>
+                <input asp-for="DeliveryDate" class="form-control" />
+                <span asp-validation-for="DeliveryDate" class="text-danger"></span>
+            </div>
+            <input type="hidden" asp-for="Id" />
+            <button type="submit" class="btn btn-primary">Зберегти зміни</button>
+            <a asp-action="Index" class="btn btn-secondary">Назад до списку</a>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

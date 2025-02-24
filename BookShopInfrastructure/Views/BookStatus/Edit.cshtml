@@ -1,0 +1,17 @@
+﻿@model BookShopDomain.Model.BookStatus
+
+<h2>Змінити статус книги</h2>
+
+<form asp-action="Edit" method="post">
+    <!-- Поле Id приховане -->
+    <input type="hidden" asp-for="Id" />
+
+    <div class="form-group">
+        <label class="control-label">Назва</label>
+        <input asp-for="Name" class="form-control" />
+        <span asp-validation-for="Name" class="text-danger"></span>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Зберегти</button>
+    <a asp-controller="BookStatus" asp-action="Index" class="btn btn-secondary">Скасувати</a>
+</form>

@@ -1,0 +1,28 @@
+﻿@model BookShopDomain.Model.Seller
+
+@{
+    ViewData["Title"] = "Додати постачальника";
+}
+
+<h1>Додати постачальника</h1>
+<hr />
+<div class="row">
+    <div class="col-md-6">
+        <form asp-action="Create">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+                <label asp-for="Name" class="control-label">Назва постачальника</label>
+                <input asp-for="Name" class="form-control" />
+                <span asp-validation-for="Name" class="text-danger"></span>
+            </div>
+            <button type="submit" class="btn btn-success">Створити</button>
+            <a asp-action="Index" class="btn btn-secondary">Назад до списку</a>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

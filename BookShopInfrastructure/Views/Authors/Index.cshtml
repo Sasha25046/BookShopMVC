@@ -1,0 +1,45 @@
+﻿@model IEnumerable<BookShopDomain.Model.Author>
+
+<h1 class="mb-3">Автори</h1>
+
+<p>
+    <a asp-action="Create" class="btn btn-success mb-3">Додати автора</a>
+</p>
+
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger">
+        @TempData["ErrorMessage"]
+    </div>
+}
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success">
+        @TempData["SuccessMessage"]
+    </div>
+}
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Автори</th>
+            <th>Дії</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.Name</td>
+                <td>
+                    <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-info btn-sm">Деталі</a>
+                    <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-warning btn-sm">Редагувати</a>
+                    <form asp-action="Delete" asp-route-id="@item.Id" method="post" class="d-inline delete-form">
+                        <button type="submit" class="btn btn-danger btn-sm">Видалити</button>
+                    </form>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
