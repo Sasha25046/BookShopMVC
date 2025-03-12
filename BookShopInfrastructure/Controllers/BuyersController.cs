@@ -1,12 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-using BookShopDomain.Model;
 using BookShopInfrastructure;
+using BookShopDomain.Model;
 
 namespace BookShopInfrastructure.Controllers
 {
@@ -26,28 +23,18 @@ namespace BookShopInfrastructure.Controllers
         }
 
         // GET: Buyers/Details/5
-        // GET: Buyers/Details/5
         public async Task<IActionResult> Details(int? id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
+            if (id == null) return NotFound();
 
             var buyer = await _context.Buyers
-                                      .Include(b => b.Orders) 
+                                      .Include(b => b.Orders)
                                       .ThenInclude(o => o.Status)
                                       .FirstOrDefaultAsync(m => m.Id == id);
+            if (buyer == null) return NotFound();
 
-            if (buyer == null)
-            {
-                return NotFound();
-            }
-
-            return View(buyer);  
+            return View(buyer);
         }
-
-
 
         // GET: Buyers/Create
         public IActionResult Create()
@@ -58,8 +45,13 @@ namespace BookShopInfrastructure.Controllers
         // POST: Buyers/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Name,Address,Id")] Buyer buyer)
+        public async Task<IActionResult> Create([Bind("Name,Address")] Buyer buyer)
         {
+            if (_context.Buyers.Any(b => b.Name == buyer.Name))
+            {
+                ModelState.AddModelError("Name", "Такий покупець вже існує.");
+            }
+
             if (ModelState.IsValid)
             {
                 _context.Add(buyer);
@@ -72,27 +64,24 @@ namespace BookShopInfrastructure.Controllers
         // GET: Buyers/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
+            if (id == null) return NotFound();
 
             var buyer = await _context.Buyers.FindAsync(id);
-            if (buyer == null)
-            {
-                return NotFound();
-            }
+            if (buyer == null) return NotFound();
+
             return View(buyer);
         }
 
         // POST: Buyers/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Name,Address,Id")] Buyer buyer)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,Name,Address")] Buyer buyer)
         {
-            if (id != buyer.Id)
+            if (id != buyer.Id) return NotFound();
+
+            if (_context.Buyers.Any(b => b.Name == buyer.Name && b.Id != buyer.Id))
             {
-                return NotFound();
+                ModelState.AddModelError("Name", "Такий покупець вже існує.");
             }
 
             if (ModelState.IsValid)
@@ -104,14 +93,8 @@ namespace BookShopInfrastructure.Controllers
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!BuyerExists(buyer.Id))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
+                    if (!BuyerExists(buyer.Id)) return NotFound();
+                    else throw;
                 }
                 return RedirectToAction(nameof(Index));
             }
@@ -121,23 +104,17 @@ namespace BookShopInfrastructure.Controllers
         // GET: Buyers/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
+            if (id == null) return NotFound();
 
             var buyer = await _context.Buyers
-                                      .Include(b => b.Orders) 
+                                      .Include(b => b.Orders)
                                       .FirstOrDefaultAsync(m => m.Id == id);
-            if (buyer == null)
-            {
-                return NotFound();
-            }
+            if (buyer == null) return NotFound();
 
             if (buyer.Orders.Any())
             {
                 ViewBag.ErrorMessage = "Неможливо видалити покупця, оскільки у нього є замовлення.";
-                return View("DeleteError", buyer);  
+                return View("DeleteError", buyer);
             }
 
             return View(buyer);
@@ -152,24 +129,20 @@ namespace BookShopInfrastructure.Controllers
                                       .Include(b => b.Orders)
                                       .FirstOrDefaultAsync(m => m.Id == id);
 
-            if (buyer == null)
-            {
-                return NotFound();
-            }
+            if (buyer == null) return NotFound();
 
             if (buyer.Orders.Any())
             {
                 TempData["ErrorMessage"] = "Неможливо видалити покупця, оскільки у нього є замовлення.";
-                return RedirectToAction(nameof(Index)); 
+                return RedirectToAction(nameof(Index));
             }
 
             _context.Buyers.Remove(buyer);
             await _context.SaveChangesAsync();
 
             TempData["SuccessMessage"] = "Покупець успішно видалений.";
-            return RedirectToAction(nameof(Index)); 
+            return RedirectToAction(nameof(Index));
         }
-
 
         private bool BuyerExists(int id)
         {

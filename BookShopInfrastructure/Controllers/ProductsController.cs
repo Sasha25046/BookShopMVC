@@ -5,16 +5,19 @@ using BookShopDomain.Model;
 using BookShopInfrastructure;
 using System.Linq;
 using System.Threading.Tasks;
+using BookShopInfrastructure.Services;
 
 namespace BookShopInfrastructure.Controllers
 {
     public class ProductsController : Controller
     {
         private readonly BookShopContext _context;
+        private readonly ProductDataPortServiceFactory _productDataPostServiceFactory;
 
-        public ProductsController(BookShopContext context)
+        public ProductsController(BookShopContext context, ProductDataPortServiceFactory productDataPostServiceFactory)
         {
             _context = context;
+            _productDataPostServiceFactory = productDataPostServiceFactory;
         }
 
         private bool ProductExists(int id)
@@ -56,13 +59,47 @@ namespace BookShopInfrastructure.Controllers
             product.BookStatus = bookStatus;
 
             ModelState.Clear();
-            TryValidateModel(product);
+            TryValidateModel(product); 
+
+            var existingProduct = await _context.Products
+                                                .Where(p => p.Name == product.Name && p.SellerId == product.SellerId && p.Year == product.Year)
+                                                .FirstOrDefaultAsync();
+
+            if (existingProduct != null)
+            {
+                ModelState.AddModelError(string.Empty, "Продукт з такою назвою, продавцем та роком видання вже існує.");
+            }
 
             if (ModelState.IsValid)
             {
-                _context.Add(product);
+                _context.Add(product); 
+
+                if (selectedGenres != null)
+                {
+                    foreach (var genreId in selectedGenres)
+                    {
+                        var genre = await _context.Genres.FindAsync(genreId);
+                        if (genre != null)
+                        {
+                            product.Genres.Add(genre);
+                        }
+                    }
+                }
+
+                if (selectedAuthors != null)
+                {
+                    foreach (var authorId in selectedAuthors)
+                    {
+                        var author = await _context.Authors.FindAsync(authorId);
+                        if (author != null)
+                        {
+                            product.Authors.Add(author);
+                        }
+                    }
+                }
+
                 await _context.SaveChangesAsync(); 
-                return RedirectToAction(nameof(Index));
+                return RedirectToAction(nameof(Index)); 
             }
 
             ViewData["SellerId"] = new SelectList(_context.Sellers, "Id", "Name", product.SellerId);
@@ -72,6 +109,8 @@ namespace BookShopInfrastructure.Controllers
 
             return View(product);
         }
+
+
 
 
         // GET: Products/Edit/2
@@ -112,11 +151,29 @@ namespace BookShopInfrastructure.Controllers
                 return NotFound();
             }
 
+            var seller = await _context.Sellers.FindAsync(product.SellerId);
+            var bookStatus = await _context.BookStatuses.FindAsync(product.BookStatusId);
+
+            product.Seller = seller;
+            product.BookStatus = bookStatus;
+
+            ModelState.Clear();
+            TryValidateModel(product); 
+
+            var existingProduct = await _context.Products
+                                                .Where(p => p.Name == product.Name && p.SellerId == product.SellerId && p.Year == product.Year && p.Id != id)
+                                                .FirstOrDefaultAsync();
+
+            if (existingProduct != null)
+            {
+                ModelState.AddModelError(string.Empty, "Продукт з такою назвою, продавцем та роком видання вже існує.");
+            }
+
             if (ModelState.IsValid)
             {
                 try
                 {
-                    _context.Update(product);
+                    _context.Update(product); 
 
                     product.Genres.Clear();
                     product.Authors.Clear();
@@ -145,7 +202,7 @@ namespace BookShopInfrastructure.Controllers
                         }
                     }
 
-                    await _context.SaveChangesAsync();
+                    await _context.SaveChangesAsync(); 
                 }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -166,8 +223,10 @@ namespace BookShopInfrastructure.Controllers
             ViewData["BookStatusId"] = new SelectList(_context.BookStatuses, "Id", "Name", product.BookStatusId);
             ViewData["Genres"] = new SelectList(_context.Genres, "Id", "Name", selectedGenres);
             ViewData["Authors"] = new SelectList(_context.Authors, "Id", "Name", selectedAuthors);
+
             return View(product);
         }
+
 
         // GET: Products/Details/5
         public async Task<IActionResult> Details(int? id)
@@ -364,6 +423,59 @@ namespace BookShopInfrastructure.Controllers
 
             return RedirectToAction(nameof(Details), new { id = productId });
         }
+
+        [HttpGet]
+        public IActionResult Import()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Import(IFormFile fileExcel, CancellationToken cancellationToken = default)
+        {
+            if (fileExcel == null || fileExcel.Length == 0)
+            {
+                TempData["ErrorMessage"] = "Будь ласка, виберіть файл для завантаження.";
+                return RedirectToAction(nameof(Index));
+            }
+
+            try
+            {
+                var importService = _productDataPostServiceFactory.GetImportService(fileExcel.ContentType);
+
+                using var stream = fileExcel.OpenReadStream();
+                await importService.ImportFromStreamAsync(stream, cancellationToken);
+
+                TempData["SuccessMessage"] = "Дані успішно завантажено!";
+            }
+            catch (Exception ex)
+            {
+                TempData["ErrorMessage"] = $"Сталася помилка при завантаженні: {ex.Message}";
+            }
+
+            return RedirectToAction(nameof(Index));
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> Export([FromQuery] string contentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",CancellationToken cancellationToken = default)
+        {
+            var exportService = _productDataPostServiceFactory.GetExportService(contentType);
+
+            var memoryStream = new MemoryStream();
+
+            await exportService.WriteToAsync(memoryStream, cancellationToken);
+
+            await memoryStream.FlushAsync(cancellationToken);
+            memoryStream.Position = 0;
+
+
+            return new FileStreamResult(memoryStream, contentType)
+            {
+                FileDownloadName = $"categiries_{DateTime.UtcNow.ToShortDateString()}.xlsx"
+            };
+        }
+
 
     }
 }

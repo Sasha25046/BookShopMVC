@@ -50,11 +50,20 @@ namespace BookShopInfrastructure.Controllers
             return View();
         }
 
-        
+
+        // POST: Status/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Name,Id")] Status status)
         {
+            var existingStatus = await _context.Statuses
+                                                .FirstOrDefaultAsync(s => s.Name == status.Name);
+
+            if (existingStatus != null)
+            {
+                ModelState.AddModelError(string.Empty, "Статус з таким ім'ям вже існує.");
+            }
+
             if (ModelState.IsValid)
             {
                 _context.Add(status);
@@ -80,7 +89,8 @@ namespace BookShopInfrastructure.Controllers
             return View(status);
         }
 
-        
+
+        // POST: Status/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("Name,Id")] Status status)
@@ -88,6 +98,15 @@ namespace BookShopInfrastructure.Controllers
             if (id != status.Id)
             {
                 return NotFound();
+            }
+
+            var existingStatus = await _context.Statuses
+                                                .Where(s => s.Name == status.Name && s.Id != id)
+                                                .FirstOrDefaultAsync();
+
+            if (existingStatus != null)
+            {
+                ModelState.AddModelError(string.Empty, "Статус з таким ім'ям вже існує.");
             }
 
             if (ModelState.IsValid)
@@ -112,6 +131,7 @@ namespace BookShopInfrastructure.Controllers
             }
             return View(status);
         }
+
 
         // GET: Status/Delete/5
         public async Task<IActionResult> Delete(int? id)

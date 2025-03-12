@@ -34,6 +34,11 @@ namespace BookShopInfrastructure.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Name")] BookStatus bookStatus)
         {
+            if (_context.BookStatuses.Any(bs => bs.Name == bookStatus.Name))
+            {
+                ModelState.AddModelError("Name", "Такий статус вже існує.");
+            }
+
             if (ModelState.IsValid)
             {
                 _context.Add(bookStatus);
@@ -60,6 +65,11 @@ namespace BookShopInfrastructure.Controllers
         public async Task<IActionResult> Edit(int id, [Bind("Id,Name")] BookStatus bookStatus)
         {
             if (id != bookStatus.Id) return NotFound();
+
+            if (_context.BookStatuses.Any(bs => bs.Name == bookStatus.Name && bs.Id != bookStatus.Id))
+            {
+                ModelState.AddModelError("Name", "Такий статус вже існує.");
+            }
 
             if (ModelState.IsValid)
             {

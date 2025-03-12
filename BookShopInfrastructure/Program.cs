@@ -1,29 +1,31 @@
 using BookShopInfrastructure;
+using BookShopInfrastructure.Services;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+// Додайте необхідні сервіси в контейнер залежностей.
 builder.Services.AddControllersWithViews();
 
-builder.Services.AddDbContext<BookShopContext>(option => option.UseSqlServer(
+// Додайте контекст БД.
+builder.Services.AddDbContext<BookShopContext>(options => options.UseSqlServer(
     builder.Configuration.GetConnectionString("DefaultConnection")
-    ));
+));
 
+// Додайте ProductDataPortServiceFactory в DI контейнер
+builder.Services.AddScoped<ProductDataPortServiceFactory>();
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+// Налаштування HTTP-пайплайна.
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
 
 app.UseHttpsRedirection();
 app.UseRouting();
-
 app.UseAuthorization();
 
 app.MapStaticAssets();
@@ -31,6 +33,5 @@ app.MapStaticAssets();
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Orders}/{action=Index}/{id?}");
-
 
 app.Run();

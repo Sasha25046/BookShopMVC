@@ -28,18 +28,26 @@ namespace BookShopInfrastructure.Controllers
             return View();
         }
 
+
         // POST: Authors/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Name")] Author author)
         {
-            if (ModelState.IsValid)
+            bool exists = await _context.Authors.AnyAsync(a => a.Name == author.Name);
+            if (exists)
             {
-                _context.Add(author);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+                ModelState.AddModelError("Name", "Такий автор вже існує!");
             }
-            return View(author);
+
+            if (!ModelState.IsValid)
+            {
+                return View(author);
+            }
+
+            _context.Add(author);
+            await _context.SaveChangesAsync();
+            return RedirectToAction(nameof(Index));
         }
 
         // GET: Authors/Edit/5
@@ -68,28 +76,40 @@ namespace BookShopInfrastructure.Controllers
                 return NotFound();
             }
 
-            if (ModelState.IsValid)
+            // Перевіряємо, чи є інший автор із таким же ім’ям
+            bool exists = await _context.Authors
+                .AnyAsync(a => a.Name == author.Name && a.Id != author.Id);
+
+            if (exists)
             {
-                try
-                {
-                    _context.Update(author);
-                    await _context.SaveChangesAsync();
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!AuthorExists(author.Id))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
-                return RedirectToAction(nameof(Index));
+                ModelState.AddModelError("Name", "Такий автор вже існує!");
             }
-            return View(author);
+
+            if (!ModelState.IsValid)
+            {
+                return View(author);
+            }
+
+            try
+            {
+                _context.Update(author);
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!AuthorExists(author.Id))
+                {
+                    return NotFound();
+                }
+                else
+                {
+                    throw;
+                }
+            }
+
+            return RedirectToAction(nameof(Index));
         }
+
 
         // GET: Authors/Delete/5
         public async Task<IActionResult> Delete(int? id)

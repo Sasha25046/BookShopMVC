@@ -2,7 +2,16 @@
 
 <h2>Список товарів</h2>
 
+<div class="row">
+    <div class="col-3">
+        <div id="countBooksByYearChart"></div>
+    </div>
+</div>
+
 <a asp-controller="Products" asp-action="Create" class="btn btn-success mb-3">Додати новий товар</a>
+<a class="btn btn-primary mb-3" type="=submit" asp-area="" asp-controller="Products" asp-action="Import">Завантажити з файлу</a>
+<a class="btn btn-secondary mb-3" asp-controller="Products" asp-action="Export">Експортувати до Excel</a>
+
 
 @if (TempData["ErrorMessage"] != null)
 {
@@ -23,7 +32,7 @@
         <tr>
             <th>Назва</th>
             <th>Опис</th>
-            <th>Рік</th>
+            <th>Рік видання</th>
             <th>Ціна</th>
             <th>Продавець</th>
             <th>Статус</th>
@@ -82,3 +91,37 @@
 </table>
 
 <a asp-controller="Orders" asp-action="Index" class="btn btn-primary">Повернутися до замовлень</a>
+
+@section Scripts
+{
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    <script type="text/javascript">
+        google.charts.load('current', {'packages':['corechart']});
+        google.charts.setOnLoadCallback(drawCharts);
+
+        function drawCharts() {
+            fetch('/api/charts/countBooksByYear')
+                .then(response => response.json())
+                .then(data => {
+                    const dataTable = new google.visualization.DataTable();
+                    dataTable.addColumn('string', 'Рік');
+                    dataTable.addColumn('number', 'Кількість книг');
+
+                    data.forEach(item => {
+                        dataTable.addRow([item.year.toString(), item.count]);
+                    });
+
+                    const options = {
+                        title: 'Кількість книг за роками',
+                        width: 600,
+                        height: 400,
+                        legend: { position: 'none' },
+                    };
+
+                    const chart = new google.visualization.ColumnChart(document.getElementById('countBooksByYearChart'));
+                    chart.draw(dataTable, options);
+                });
+        }
+    </script>
+}
+

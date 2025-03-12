@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
-
 namespace BookShopDomain.Model;
 
 public partial class Author : Entity

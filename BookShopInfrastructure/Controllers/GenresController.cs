@@ -33,6 +33,11 @@ namespace BookShopInfrastructure.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Name")] Genre genre)
         {
+            if (_context.Genres.Any(g => g.Name == genre.Name))
+            {
+                ModelState.AddModelError("Name", "Такий жанр вже існує.");
+            }
+
             if (ModelState.IsValid)
             {
                 _context.Add(genre);
@@ -45,27 +50,24 @@ namespace BookShopInfrastructure.Controllers
         // GET: Genres/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
+            if (id == null) return NotFound();
 
             var genre = await _context.Genres.FindAsync(id);
-            if (genre == null)
-            {
-                return NotFound();
-            }
+            if (genre == null) return NotFound();
+
             return View(genre);
         }
 
         // POST: Genres/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Name,Id")] Genre genre)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,Name")] Genre genre)
         {
-            if (id != genre.Id)
+            if (id != genre.Id) return NotFound();
+
+            if (_context.Genres.Any(g => g.Name == genre.Name && g.Id != genre.Id))
             {
-                return NotFound();
+                ModelState.AddModelError("Name", "Такий жанр вже існує.");
             }
 
             if (ModelState.IsValid)
@@ -77,14 +79,8 @@ namespace BookShopInfrastructure.Controllers
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!GenreExists(genre.Id))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
+                    if (!GenreExists(genre.Id)) return NotFound();
+                    else throw;
                 }
                 return RedirectToAction(nameof(Index));
             }
@@ -94,18 +90,12 @@ namespace BookShopInfrastructure.Controllers
         // GET: Genres/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
+            if (id == null) return NotFound();
 
             var genre = await _context.Genres
                                        .Include(g => g.Products)
                                        .FirstOrDefaultAsync(m => m.Id == id);
-            if (genre == null)
-            {
-                return NotFound();
-            }
+            if (genre == null) return NotFound();
 
             if (genre.Products.Any())
             {
@@ -125,40 +115,31 @@ namespace BookShopInfrastructure.Controllers
                                        .Include(g => g.Products)
                                        .FirstOrDefaultAsync(m => m.Id == id);
 
-            if (genre == null)
-            {
-                return NotFound();
-            }
+            if (genre == null) return NotFound();
 
             if (genre.Products.Any())
             {
                 TempData["ErrorMessage"] = "Неможливо видалити жанр, оскільки в ньому є книги.";
-                return RedirectToAction(nameof(Index));  
+                return RedirectToAction(nameof(Index));
             }
 
             _context.Genres.Remove(genre);
             await _context.SaveChangesAsync();
 
             TempData["SuccessMessage"] = "Жанр успішно видалений.";
-            return RedirectToAction(nameof(Index));  
+            return RedirectToAction(nameof(Index));
         }
 
         // GET: Genres/Details/5
         public async Task<IActionResult> Details(int? id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
+            if (id == null) return NotFound();
 
             var genre = await _context.Genres
                                        .Include(g => g.Products)
                                        .FirstOrDefaultAsync(m => m.Id == id);
 
-            if (genre == null)
-            {
-                return NotFound();
-            }
+            if (genre == null) return NotFound();
 
             return View(genre);
         }

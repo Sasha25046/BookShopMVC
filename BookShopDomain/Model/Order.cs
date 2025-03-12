@@ -21,4 +21,5 @@ public partial class Order : Entity
     public virtual ICollection<OrderItem> OrderItems { get; set; } = new List<OrderItem>();
 
     public virtual Status Status { get; set; } = null!;
+
 }

@@ -44,6 +44,15 @@ namespace BookShopInfrastructure.Controllers
             ModelState.Remove("Order");
             ModelState.Remove("Product");
 
+            // Check if the OrderItem with the same ProductId already exists in the same Order
+            bool exists = await _context.OrderItems
+                .AnyAsync(o => o.OrderId == orderItem.OrderId && o.ProductId == orderItem.ProductId);
+
+            if (exists)
+            {
+                ModelState.AddModelError("ProductId", "Товар вже доданий до цього замовлення.");
+            }
+
             if (ModelState.IsValid)
             {
                 _context.Add(orderItem);
@@ -81,6 +90,15 @@ namespace BookShopInfrastructure.Controllers
             ModelState.Remove("Order");
             ModelState.Remove("Product");
 
+            // Check if another OrderItem with the same ProductId exists for the same Order (excluding the current item)
+            bool exists = await _context.OrderItems
+                .AnyAsync(o => o.OrderId == orderItem.OrderId && o.ProductId == orderItem.ProductId && o.Id != orderItem.Id);
+
+            if (exists)
+            {
+                ModelState.AddModelError("ProductId", "Товар вже доданий до цього замовлення.");
+            }
+
             if (ModelState.IsValid)
             {
                 try
@@ -101,6 +119,7 @@ namespace BookShopInfrastructure.Controllers
             ViewData["ProductId"] = new SelectList(_context.Products, "Id", "Name", orderItem.ProductId);
             return View(orderItem);
         }
+
 
 
         // GET: OrderItems/Delete/5

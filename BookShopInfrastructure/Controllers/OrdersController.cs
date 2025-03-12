@@ -44,16 +44,24 @@ namespace BookShopInfrastructure.Controllers
         // GET: Orders/Create
         public IActionResult Create()
         {
+            var order = new Order
+            {
+                OrderDate = DateOnly.FromDateTime(DateTime.Today) // Встановлення поточної дати
+            };
+
             ViewData["BuyerId"] = new SelectList(_context.Buyers, "Id", "Name");
             ViewData["StatusId"] = new SelectList(_context.Statuses, "Id", "Name");
-            return View();
+            return View(order);
         }
+
+
 
         // POST: Orders/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("StatusId,BuyerId,OrderDate,DeliveryDate,Id")] Order order)
         {
+            // Перевірка покупця та статусу
             var buyer = await _context.Buyers.FindAsync(order.BuyerId);
             var status = await _context.Statuses.FindAsync(order.StatusId);
 
@@ -62,6 +70,11 @@ namespace BookShopInfrastructure.Controllers
 
             ModelState.Clear();
             TryValidateModel(order);
+
+            if (order.OrderDate.HasValue && order.DeliveryDate.HasValue && order.DeliveryDate < order.OrderDate)
+            {
+                ModelState.AddModelError(nameof(order.DeliveryDate), "Дата доставки не може бути раніше дати замовлення.");
+            }
 
             if (ModelState.IsValid)
             {
@@ -74,6 +87,7 @@ namespace BookShopInfrastructure.Controllers
             ViewData["StatusId"] = new SelectList(_context.Statuses, "Id", "Name", order.StatusId);
             return View(order);
         }
+
 
         // GET: Orders/Edit/5
         public async Task<IActionResult> Edit(int? id)
@@ -95,32 +109,46 @@ namespace BookShopInfrastructure.Controllers
         {
             if (id != order.Id) return NotFound();
 
+            var existingOrder = await _context.Orders.AsNoTracking().FirstOrDefaultAsync(o => o.Id == id);
+            if (existingOrder == null) return NotFound();
+
+            order.OrderDate = existingOrder.OrderDate;
+
             var buyer = await _context.Buyers.FindAsync(order.BuyerId);
             var status = await _context.Statuses.FindAsync(order.StatusId);
             order.Buyer = buyer;
             order.Status = status;
 
-            ModelState.Clear();
-            TryValidateModel(order);
+            ModelState.Clear();  
+            TryValidateModel(order); 
 
-            if (ModelState.IsValid)
+            if (order.DeliveryDate.HasValue && order.DeliveryDate < order.OrderDate)
             {
-                try
-                {
-                    _context.Update(order);
-                    await _context.SaveChangesAsync();
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!OrderExists(order.Id)) return NotFound();
-                    else throw;
-                }
-                return RedirectToAction(nameof(Index));
+                ModelState.AddModelError(nameof(order.DeliveryDate), "Дата доставки не може бути раніше дати замовлення.");
             }
-            ViewData["BuyerId"] = new SelectList(_context.Buyers, "Id", "Name", order.BuyerId);
-            ViewData["StatusId"] = new SelectList(_context.Statuses, "Id", "Name", order.StatusId);
-            return View(order);
+
+            if (!ModelState.IsValid) 
+            {
+                ViewData["BuyerId"] = new SelectList(_context.Buyers, "Id", "Name", order.BuyerId);
+                ViewData["StatusId"] = new SelectList(_context.Statuses, "Id", "Name", order.StatusId);
+                return View(order);
+            }
+
+            try
+            {
+                _context.Update(order);
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!OrderExists(order.Id)) return NotFound();
+                else throw;
+            }
+
+            return RedirectToAction(nameof(Index));
         }
+
+
 
         // GET: Orders/Delete/5
         public async Task<IActionResult> Delete(int? id)

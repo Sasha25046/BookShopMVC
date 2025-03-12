@@ -1,0 +1,35 @@
+﻿@model BookShopDomain.Model.Product
+
+@{
+    ViewData["Title"] = "Імпорт даних про книги";
+}
+
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger">
+        @TempData["ErrorMessage"]
+    </div>
+}
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success">
+        @TempData["SuccessMessage"]
+    </div>
+}
+
+<div>
+    <h3>Оберіть excel-файл для завантаження</h3>
+    @using (Html.BeginForm("Import", "Products", FormMethod.Post, new { enctype = "multipart/form-data", id = "frm-excel" }))
+    {
+        <div>
+            Завантажте Excel-файл:
+            <!-- Кастомна кнопка для вибору файлу -->
+            <label for="fileExcel" class="btn btn-primary">Оберіть файл</label>
+            <input type="file" name="fileExcel" id="fileExcel" style="display:none;" />
+            <div>
+                <input type="submit" value="Завантажити" class="btn btn-success" />
+            </div>
+        </div>
+    }
+</div>

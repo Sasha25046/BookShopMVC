@@ -49,11 +49,21 @@ namespace BookShopInfrastructure.Controllers
             return View();
         }
 
-        
+
+        // POST: Sellers/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Name,Id")] Seller seller)
         {
+            // Перевірка на дублювання за іменем продавця
+            var existingSeller = await _context.Sellers
+                                                .FirstOrDefaultAsync(s => s.Name == seller.Name);
+
+            if (existingSeller != null)
+            {
+                ModelState.AddModelError(string.Empty, "Продавець з таким ім'ям вже існує.");
+            }
+
             if (ModelState.IsValid)
             {
                 _context.Add(seller);
@@ -62,6 +72,7 @@ namespace BookShopInfrastructure.Controllers
             }
             return View(seller);
         }
+
 
         // GET: Sellers/Edit/5
         public async Task<IActionResult> Edit(int? id)
@@ -79,7 +90,8 @@ namespace BookShopInfrastructure.Controllers
             return View(seller);
         }
 
-        
+
+        // POST: Sellers/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("Name,Id")] Seller seller)
@@ -87,6 +99,16 @@ namespace BookShopInfrastructure.Controllers
             if (id != seller.Id)
             {
                 return NotFound();
+            }
+
+            // Перевірка на дублювання (за винятком поточного продавця)
+            var existingSeller = await _context.Sellers
+                                                .Where(s => s.Name == seller.Name && s.Id != id)
+                                                .FirstOrDefaultAsync();
+
+            if (existingSeller != null)
+            {
+                ModelState.AddModelError(string.Empty, "Продавець з таким ім'ям вже існує.");
             }
 
             if (ModelState.IsValid)
@@ -111,6 +133,7 @@ namespace BookShopInfrastructure.Controllers
             }
             return View(seller);
         }
+
 
         // GET: Sellers/Delete/5
         public async Task<IActionResult> Delete(int? id)
