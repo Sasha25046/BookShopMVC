@@ -55,7 +55,6 @@ namespace BookShopInfrastructure.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Name,Id")] Seller seller)
         {
-            // Перевірка на дублювання за іменем продавця
             var existingSeller = await _context.Sellers
                                                 .FirstOrDefaultAsync(s => s.Name == seller.Name);
 
@@ -101,7 +100,6 @@ namespace BookShopInfrastructure.Controllers
                 return NotFound();
             }
 
-            // Перевірка на дублювання (за винятком поточного продавця)
             var existingSeller = await _context.Sellers
                                                 .Where(s => s.Name == seller.Name && s.Id != id)
                                                 .FirstOrDefaultAsync();
