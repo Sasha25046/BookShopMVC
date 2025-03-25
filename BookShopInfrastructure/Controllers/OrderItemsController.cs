@@ -90,7 +90,6 @@ namespace BookShopInfrastructure.Controllers
             ModelState.Remove("Order");
             ModelState.Remove("Product");
 
-            // Check if another OrderItem with the same ProductId exists for the same Order (excluding the current item)
             bool exists = await _context.OrderItems
                 .AnyAsync(o => o.OrderId == orderItem.OrderId && o.ProductId == orderItem.ProductId && o.Id != orderItem.Id);
 
